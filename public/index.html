@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+ <head>
+   <meta charset="utf-8">
+   <title>Redes sociales</title>
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <style>
+     body {
+       font-family: sans-serif
+     }
+   </style>
+   <script src="/__/firebase/6.0.2/firebase-app.js"></script>
+   <script src="/__/firebase/6.0.2/firebase-functions.js"></script>
+   <script src="/__/firebase/init.js"></script>
+ </head>
+ <body>
+   <h1>Redes sociales</h1>
+   <form name="vista">
+      <p><output name="respuesta"></output></p> 
+    <p>
+      Nnombre
+        <input type="text" name="Nombre" required placeholder="Nombre"
+          >
+     </p>
+     <p>
+      Apellido
+      <input type="text" name="Apellido" required placeholder="Apellido"
+        >
+   </p>
+   <p>
+    Fecha de nacimiento
+    <input type="date" name="Fecha" required placeholder=" Fecha de nacimiento"
+      >
+ </p>
+ <p>
+  Correo
+  <input type="email" name="Correo" required placeholder="Correo electronico"
+    >
+</p>
+<p>
+  Facebook
+  <input type="text" name="Facebook" required placeholder="Nombre de usuario"
+    >
+</p>
+     <p>
+       Instagram
+       <input type="text" name="Instagram" required placeholder="Nombre de usuario"
+         >
+     </p>
+    
+     <p>
+        Twiter
+        <input type="text" name="Twiter" required placeholder="Nombre de usuario"
+>
+          </p><p>
+       <button type="submit">Aceptar (Hilos)</button>
+       <button type="button" name="saludaHttp">Aceptar (Http)</button>
+     </p>
+   </form>
+   <script>
+     "use strict";
+     const hilo = new Worker("wwSaludo.js");
+     document.vista.addEventListener("submit", saludaHilo);
+     document.vista.saludaHttp.addEventListener("click", saludaHttp);
+     hilo.addEventListener("message", evt => muestraRespuesta(evt.data));
+     function muestraRespuesta(respuesta) {
+       document.vista.respuesta.value = respuesta;
+     }
+     function saludaHilo(evt) {
+       evt.preventDefault();
+       const modelo = leeModelo();
+       hilo.postMessage(modelo);
+     }
+     async function saludaHttp() {
+       try {
+         const modelo = leeModelo();
+         const respuestaHttp = await fetch(
+           "saludo?Nombre=" + encodeURIComponent(modelo.Nombre)
+           + "&Apellido=" + encodeURIComponent(modelo.Apellido)
+           + "&Fecha=" + encodeURIComponent(modelo.Fecha)
+           + "&Correo=" + encodeURIComponent(modelo.Correo)
+           + "&Facebook=" + encodeURIComponent(modelo.Facebook)
+           + "&Instagram=" + encodeURIComponent(modelo.Instagram)
+           + "&Twiter=" + encodeURIComponent(modelo.Twiter));
+         if (respuestaHttp.ok) {
+           const respuestaTexto = await respuestaHttp.text();
+           muestraRespuesta(respuestaTexto);
+         } else {
+           throw new Error(respuestaHttp.statusText);
+         }
+       } catch (e) {
+         muestraRespuesta(e.message);
+       }
+     }
+     function leeModelo() {
+       return {
+        Nombre: document.vista.Nombre.value,
+        Apellido: document.vista.Apellido.value,
+        Fecha: document.vista.Fecha.value,
+        Correo: document.vista.Correo.value,
+        Facebook: document.vista.Facebook.value,
+        Instagram: document.vista.Instagram.value,
+        Twiter: document.vista.Twiter.value.trim()
+       };
+     }
+   </script>
+   <footer>
+     <small>Copyright &copy;2019 POSADAS DÍAZ MANUEL JOSAFETH</small>
+   </footer>
+ </body>
+</html>
